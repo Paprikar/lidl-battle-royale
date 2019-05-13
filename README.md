@@ -1,6 +1,6 @@
 # lidl-battle-royale
 
 ## Specs:
-Unity 2019.1.0f2
+Unity 2019.1.2f1
 #### Extarnal assets:
-  * Easy FPS
+  * UMotion
