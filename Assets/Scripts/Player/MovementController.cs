@@ -4,10 +4,10 @@ using UnityEngine;
 
 public class MovementController : MonoBehaviour
 {
-    public float movementSpeed = 3.0f;
+    public float movementSpeed = 5.0f;
+    public float mouseSensetivity = 20.0f;
     public float jumpForce = 200.0f;
-    public float mouseSensetivity = 5.0f;
-    public Transform headObject;
+    public Transform headTransform;
 
 
     private Rigidbody rb;
@@ -15,11 +15,19 @@ public class MovementController : MonoBehaviour
     private float vMov;
     private float hRot;
     private float vRot;
+    private float currentXRot;
 
 
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
+    }
+
+
+    void Start()
+    {
+        rb.freezeRotation = true;
+        currentXRot = headTransform.localEulerAngles.x;
     }
 
 
@@ -41,16 +49,39 @@ public class MovementController : MonoBehaviour
 
     void Move()
     {
-        Vector3 movement = new Vector3(hMov, 0f, vMov).normalized * movementSpeed * Time.deltaTime;
-        rb.MovePosition(transform.position + movement);
+        // Movement
+        Vector3 movement = new Vector3(hMov, 0f, vMov).normalized * movementSpeed * Time.fixedDeltaTime;
 
-        Vector2 rotating = new Vector2(hRot, vRot) * mouseSensetivity * Time.deltaTime;
-        transform.rotation *= Quaternion.AngleAxis(rotating.x, headObject.up);
-        headObject.rotation *= Quaternion.AngleAxis(-rotating.y, Vector3.right);
+        rb.MovePosition(transform.position + transform.TransformDirection(movement));
 
+
+        // Y Rotation
+        Vector3 newYRot = new Vector3
+        (
+            0f,
+            transform.localEulerAngles.y + hRot * mouseSensetivity * Time.fixedDeltaTime,
+            0f
+        );
+
+        transform.localEulerAngles = newYRot;
+
+
+        // X Rotation
+        currentXRot = Mathf.Clamp(currentXRot - vRot * mouseSensetivity * Time.fixedDeltaTime, -70f, 60f);
+        Vector3 newXRot = new Vector3
+        (
+            currentXRot,
+            headTransform.localEulerAngles.y,
+            headTransform.localEulerAngles.z
+        );
+
+        headTransform.localEulerAngles = newXRot;
+
+
+/*         // Jumps
         if (Input.GetKeyDown("space"))
         {
-            rb.AddForce(Vector3.up * jumpForce, ForceMode.Acceleration);
-        }
+            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+        } */
     }
 }
