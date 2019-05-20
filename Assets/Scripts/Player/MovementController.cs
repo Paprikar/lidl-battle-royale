@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class MovementController : MonoBehaviour
 {
@@ -8,6 +9,7 @@ public class MovementController : MonoBehaviour
     public float mouseSensetivity = 20.0f;
     public float jumpForce = 200.0f;
     public Transform headTransform;
+    public Text textWindow;
 
 
     private Rigidbody rb;
@@ -16,11 +18,13 @@ public class MovementController : MonoBehaviour
     private float hRot;
     private float vRot;
     private float currentXRot;
+    private GroundChecker gc;
 
 
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        gc = transform.Find("GroundCheckerTrigger").GetComponent<GroundChecker>();
     }
 
 
@@ -33,11 +37,13 @@ public class MovementController : MonoBehaviour
 
     void Update()
     {
-        hMov = Input.GetAxisRaw("Horizontal");
-        vMov = Input.GetAxisRaw("Vertical");
+        hMov = Input.GetAxis("Horizontal");
+        vMov = Input.GetAxis("Vertical");
 
         hRot = Input.GetAxisRaw("Mouse X");
         vRot = Input.GetAxisRaw("Mouse Y");
+
+        textWindow.text = (gc.isGrounded ? "true" : "false") + " " + gc.collList.Count.ToString();
     }
 
 
@@ -50,7 +56,7 @@ public class MovementController : MonoBehaviour
     void Move()
     {
         // Movement
-        Vector3 movement = new Vector3(hMov, 0f, vMov).normalized * movementSpeed * Time.fixedDeltaTime;
+        Vector3 movement = Vector3.ClampMagnitude(new Vector3(hMov, 0f, vMov), 1.0f) * movementSpeed * Time.fixedDeltaTime;
 
         rb.MovePosition(transform.position + transform.TransformDirection(movement));
 
@@ -78,10 +84,10 @@ public class MovementController : MonoBehaviour
         headTransform.localEulerAngles = newXRot;
 
 
-/*         // Jumps
-        if (Input.GetKeyDown("space"))
+        // Jumps
+        if (Input.GetKeyDown("space") && gc.isGrounded)
         {
-            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-        } */
+            rb.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
+        }
     }
 }
