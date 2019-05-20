@@ -7,7 +7,7 @@ public class MovementController : MonoBehaviour
 {
     public float movementSpeed = 5.0f;
     public float mouseSensetivity = 20.0f;
-    public float jumpForce = 200.0f;
+    public float jumpForce = 4.0f;
     public Transform headTransform;
     public Text textWindow;
 
@@ -56,9 +56,12 @@ public class MovementController : MonoBehaviour
     void Move()
     {
         // Movement
-        Vector3 movement = Vector3.ClampMagnitude(new Vector3(hMov, 0f, vMov), 1.0f) * movementSpeed * Time.fixedDeltaTime;
+        if (gc.isGrounded)
+        {
+            Vector3 movement = Vector3.ClampMagnitude(new Vector3(hMov, 0f, vMov), 1.0f);
 
-        rb.MovePosition(transform.position + transform.TransformDirection(movement));
+            rb.velocity = transform.TransformDirection(movement) * movementSpeed;
+        }
 
 
         // Y Rotation
