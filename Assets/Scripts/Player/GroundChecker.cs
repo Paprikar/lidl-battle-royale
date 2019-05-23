@@ -9,24 +9,28 @@ public class GroundChecker : MonoBehaviour
     public bool isGrounded = true;
 
 
-    public List<Collider> collList = new List<Collider>(); // Debugging
+    public List<int> collList = new List<int>(); // Debugging
 
 
     void OnTriggerEnter(Collider other)
     {
-        if(!collList.Contains(other) && Ground == (Ground | 1 << other.gameObject.layer))
+        if(!collList.Contains(other.gameObject.GetInstanceID()) && Ground == (Ground | 1 << other.gameObject.layer))
         {
-            collList.Add(other);
-            isGrounded = true;
+            collList.Add(other.gameObject.GetInstanceID());
+
+            if (!isGrounded)
+            {
+                isGrounded = true;
+            }
         }
     }
 
 
     void OnTriggerExit(Collider other)
     {
-        if (collList.Contains(other) && Ground == (Ground | 1 << other.gameObject.layer))
+        if (collList.Contains(other.gameObject.GetInstanceID()) && Ground == (Ground | 1 << other.gameObject.layer))
         {
-            collList.Remove(other);
+            collList.Remove(other.gameObject.GetInstanceID());
 
             if (collList.Count == 0)
             {

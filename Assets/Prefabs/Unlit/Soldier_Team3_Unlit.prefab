@@ -619,8 +619,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   movementSpeed: 5
-  mouseSensetivity: 20
-  jumpForce: 2
+  mouseSensetivity: 15
+  jumpForce: 4
   headTransform: {fileID: 4559593973381506}
   textWindow: {fileID: 0}
 --- !u!1 &1167849799389016
@@ -3238,10 +3238,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3631476005560476123}
+  - component: {fileID: 1965497308975960132}
   - component: {fileID: 4066547022115807373}
-  - component: {fileID: 1262836710755419381}
   m_Layer: 0
-  m_Name: GroundCheckerTrigger
+  m_Name: GroundChecker
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3255,12 +3255,25 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7756380119441333356}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.28, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4388147801538684}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!135 &1965497308975960132
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7756380119441333356}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.285
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &4066547022115807373
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3278,17 +3291,3 @@ MonoBehaviour:
     m_Bits: 256
   isGrounded: 1
   collList: []
---- !u!64 &1262836710755419381
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7756380119441333356}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Convex: 1
-  m_CookingOptions: 14
-  m_Mesh: {fileID: 4300000, guid: e42e49c8a2f93bf43adaa0239943487a, type: 2}

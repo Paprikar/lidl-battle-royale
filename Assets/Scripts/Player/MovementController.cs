@@ -24,7 +24,7 @@ public class MovementController : MonoBehaviour
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
-        gc = transform.Find("GroundCheckerTrigger").GetComponent<GroundChecker>();
+        gc = transform.Find("GroundChecker").GetComponent<GroundChecker>();
     }
 
 
@@ -37,11 +37,11 @@ public class MovementController : MonoBehaviour
 
     void Update()
     {
-        hMov = Input.GetAxis("Horizontal");
+/*         hMov = Input.GetAxis("Horizontal");
         vMov = Input.GetAxis("Vertical");
 
         hRot = Input.GetAxisRaw("Mouse X");
-        vRot = Input.GetAxisRaw("Mouse Y");
+        vRot = Input.GetAxisRaw("Mouse Y"); */
 
         textWindow.text = (gc.isGrounded ? "true" : "false") + " " + gc.collList.Count.ToString();
     }
@@ -58,10 +58,25 @@ public class MovementController : MonoBehaviour
         // Movement
         if (gc.isGrounded)
         {
+            hMov = InputManager(hMov, Input.GetKey(KeyCode.A), Input.GetKey(KeyCode.D), 5, true);
+            vMov = InputManager(vMov, Input.GetKey(KeyCode.S), Input.GetKey(KeyCode.W), 5, true);
+
             Vector3 movement = Vector3.ClampMagnitude(new Vector3(hMov, 0f, vMov), 1.0f);
 
             rb.velocity = transform.TransformDirection(movement) * movementSpeed;
         }
+
+
+        // Jumps
+        if (Input.GetKeyDown("space") && gc.isGrounded)
+        {
+            rb.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
+        }
+
+
+        // Get Inputs
+        hRot = Input.GetAxisRaw("Mouse X");
+        vRot = Input.GetAxisRaw("Mouse Y");
 
 
         // Y Rotation
@@ -85,12 +100,45 @@ public class MovementController : MonoBehaviour
         );
 
         headTransform.localEulerAngles = newXRot;
+    }
 
 
-        // Jumps
-        if (Input.GetKeyDown("space") && gc.isGrounded)
+    float InputManager(float currentAxisValue, bool negativeKey, bool positiveKey, float modifier, bool snap = true)
+    {
+        if (positiveKey == negativeKey)
         {
-            rb.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
+            if (currentAxisValue < 0f)
+            {
+                currentAxisValue = Mathf.Min(currentAxisValue + modifier * Time.fixedDeltaTime, 0f);
+            }
+            else if (currentAxisValue > 0f)
+            {
+                currentAxisValue = Mathf.Max(currentAxisValue - modifier * Time.fixedDeltaTime, 0f);
+            }
         }
+        else if (positiveKey)
+        {
+            if (snap && currentAxisValue < 0f)
+            {
+                currentAxisValue = 0f;
+            }
+            else
+            {
+                currentAxisValue = Mathf.Min(currentAxisValue + modifier * Time.fixedDeltaTime, 1f);
+            }
+        }
+        else if (negativeKey)
+        {
+            if (snap && currentAxisValue > 0f)
+            {
+                currentAxisValue = 0f;
+            }
+            else
+            {
+                currentAxisValue = Mathf.Max(currentAxisValue - modifier * Time.fixedDeltaTime, -1f);
+            }
+        }
+
+        return currentAxisValue;
     }
 }
