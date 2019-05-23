@@ -37,12 +37,6 @@ public class MovementController : MonoBehaviour
 
     void Update()
     {
-/*         hMov = Input.GetAxis("Horizontal");
-        vMov = Input.GetAxis("Vertical");
-
-        hRot = Input.GetAxisRaw("Mouse X");
-        vRot = Input.GetAxisRaw("Mouse Y"); */
-
         textWindow.text = (gc.isGrounded ? "true" : "false") + " " + gc.collList.Count.ToString();
     }
 
@@ -61,16 +55,19 @@ public class MovementController : MonoBehaviour
             hMov = InputManager(hMov, Input.GetKey(KeyCode.A), Input.GetKey(KeyCode.D), 5, true);
             vMov = InputManager(vMov, Input.GetKey(KeyCode.S), Input.GetKey(KeyCode.W), 5, true);
 
-            Vector3 movement = Vector3.ClampMagnitude(new Vector3(hMov, 0f, vMov), 1.0f);
+            Vector3 movement = Vector3.ClampMagnitude(new Vector3(hMov, 0f, vMov), 1.0f) * movementSpeed;
 
-            rb.velocity = transform.TransformDirection(movement) * movementSpeed;
-        }
+            // Jump
+            if (Input.GetKeyDown("space"))
+            {
+                movement.y = rb.velocity.y + jumpForce;
+            }
+            else
+            {
+                movement.y = rb.velocity.y;
+            }
 
-
-        // Jumps
-        if (Input.GetKeyDown("space") && gc.isGrounded)
-        {
-            rb.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
+            rb.velocity = transform.TransformDirection(movement);
         }
 
 

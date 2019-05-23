@@ -83,6 +83,50 @@ AudioListener:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 415179828}
   m_Enabled: 1
+--- !u!1 &1120901402
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1120901403}
+  - component: {fileID: 1120901404}
+  m_Layer: 10
+  m_Name: GroundCollider
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1120901403
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1120901402}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.285, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4388147801538684}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!135 &1120901404
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1120901402}
+  m_Material: {fileID: 13400000, guid: 164a6c4fa47ed444bb691f2f29e3a685, type: 2}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.295
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &1010673127338264
 GameObject:
   m_ObjectHideFlags: 0
@@ -530,7 +574,7 @@ GameObject:
   - component: {fileID: 404603977}
   - component: {fileID: 404603976}
   - component: {fileID: 404603978}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Soldier_Team3_Unlit
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -553,6 +597,7 @@ Transform:
   - {fileID: 4522595661012364}
   - {fileID: 4734394780200230}
   - {fileID: 4330691437390236}
+  - {fileID: 1120901403}
   - {fileID: 3631476005560476123}
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -620,7 +665,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   movementSpeed: 5
   mouseSensetivity: 15
-  jumpForce: 4
+  jumpForce: 2
   headTransform: {fileID: 4559593973381506}
   textWindow: {fileID: 0}
 --- !u!1 &1167849799389016
@@ -3255,11 +3300,11 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7756380119441333356}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.28, z: 0}
+  m_LocalPosition: {x: 0, y: 0.285, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4388147801538684}
-  m_RootOrder: 5
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!135 &1965497308975960132
 SphereCollider:
@@ -3272,7 +3317,7 @@ SphereCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.285
+  m_Radius: 0.298
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &4066547022115807373
 MonoBehaviour:
@@ -3286,8 +3331,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0120adc83e0841b4486f8d495f21f923, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isGrounded: 1
   Ground:
     serializedVersion: 2
     m_Bits: 256
-  isGrounded: 1
-  collList: []
+  collList: 

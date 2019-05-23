@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class GroundChecker : MonoBehaviour
 {
-    [SerializeField]
-    private LayerMask Ground;
     public bool isGrounded = true;
 
 
+    [SerializeField]
+    private LayerMask Ground = -1;
     public List<int> collList = new List<int>(); // Debugging
 
 
