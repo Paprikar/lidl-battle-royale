@@ -5,7 +5,14 @@
 [Bb]uild/
 [Bb]uilds/
 Assets/AssetStoreTools*
+
+
+# 3rd asset folders
 UMotionData/
+Assets/ThirdPersonCharacter/
+Assets/Raw Mocap Data/
+Assets/Huge Mocap Library/
+
 
 # Visual Studio cache directory
 .vs/
