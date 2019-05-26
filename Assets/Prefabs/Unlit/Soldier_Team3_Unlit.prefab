@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 415179829}
   m_Layer: 0
   m_Name: Camera
-  m_TagString: Untagged
+  m_TagString: MainCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -25,13 +25,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 415179828}
-  m_LocalRotation: {x: -0.17364825, y: 0, z: 0, w: 0.9848078}
-  m_LocalPosition: {x: 0, y: 0.13, z: 0.03}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 4559593973381506}
-  m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: -20, y: 0, z: 0}
+  m_Father: {fileID: 7409401344336331151}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!20 &415179830
 Camera:
   m_ObjectHideFlags: 0
@@ -57,13 +57,13 @@ Camera:
     height: 1
   near clip plane: 0.1
   far clip plane: 1000
-  field of view: 55.10562
+  field of view: 54.29936
   orthographic: 0
   orthographic size: 5
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 1335
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -573,7 +573,8 @@ GameObject:
   - component: {fileID: 95221350594522706}
   - component: {fileID: 404603977}
   - component: {fileID: 404603976}
-  - component: {fileID: 404603978}
+  - component: {fileID: 8578374981319174284}
+  - component: {fileID: 5095163350194442939}
   m_Layer: 9
   m_Name: Soldier_Team3_Unlit
   m_TagString: Untagged
@@ -598,7 +599,7 @@ Transform:
   - {fileID: 4734394780200230}
   - {fileID: 4330691437390236}
   - {fileID: 1120901403}
-  - {fileID: 3631476005560476123}
+  - {fileID: 7409401344336331151}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -610,9 +611,9 @@ Animator:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1167246793493698}
-  m_Enabled: 0
+  m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: 5b650dcf1c7a28d4789c3d2665a02849, type: 3}
-  m_Controller: {fileID: 9100000, guid: c56069ee23945834baecd686e003c15f, type: 2}
+  m_Controller: {fileID: 9100000, guid: e2cf68ff4b1ffda45a77f7307dd789b9, type: 2}
   m_CullingMode: 1
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -651,7 +652,20 @@ CapsuleCollider:
   m_Height: 1.8
   m_Direction: 1
   m_Center: {x: 0, y: 0.9, z: 0}
---- !u!114 &404603978
+--- !u!114 &8578374981319174284
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1167246793493698}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73ae5399dfb65b441a8eae68831c73f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  textWindow: {fileID: 0}
+--- !u!114 &5095163350194442939
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -663,11 +677,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf83d81be4634154e916138f3c03a4d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  movementSpeed: 5
-  mouseSensetivity: 15
-  jumpForce: 2
-  headTransform: {fileID: 4559593973381506}
-  textWindow: {fileID: 0}
+  m_MoveSpeedMultiplier: 5
+  m_AnimSpeedMultiplier: 0.8
+  m_UseRootMotion: 0
+  m_MouseSensetivity: 15
+  m_JumpSpeed: 4
+  m_GroundLayerMask:
+    serializedVersion: 2
+    m_Bits: 256
+  m_GroundCheckHeight: 0.22
+  m_GroundCheckRaiseHeight: 0.28
+  m_GroundCheckRadius: 0.295
+  m_GravityMultiplier: 1
+  m_RunCycleLegOffset: 0.2
 --- !u!1 &1167849799389016
 GameObject:
   m_ObjectHideFlags: 0
@@ -772,7 +794,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4982394490536272}
   - component: {fileID: 137701579767247462}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Goggles_LP
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1136,7 +1158,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4522595661012364}
   - component: {fileID: 137305396851769092}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Helmet_LP
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1530,7 +1552,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4734394780200230}
   - component: {fileID: 137740158385942710}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Helmet_Strap_LP
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2154,7 +2176,6 @@ Transform:
   m_LocalScale: {x: 1, y: 0.99999994, z: 1}
   m_Children:
   - {fileID: 4955511251535342}
-  - {fileID: 415179831}
   m_Father: {fileID: 4179844855789934}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2799,7 +2820,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4330691437390236}
   - component: {fileID: 137511136415919216}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Soldier_LP
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3274,7 +3295,7 @@ Transform:
   m_Father: {fileID: 4974106372347976}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &7756380119441333356
+--- !u!1 &3885389346894798356
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -3282,57 +3303,26 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 3631476005560476123}
-  - component: {fileID: 1965497308975960132}
-  - component: {fileID: 4066547022115807373}
+  - component: {fileID: 7409401344336331151}
   m_Layer: 0
-  m_Name: GroundChecker
+  m_Name: CameraMount
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &3631476005560476123
+--- !u!4 &7409401344336331151
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7756380119441333356}
+  m_GameObject: {fileID: 3885389346894798356}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.285, z: 0}
+  m_LocalPosition: {x: 0, y: 1.64, z: 0.1}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
+  m_Children:
+  - {fileID: 415179831}
   m_Father: {fileID: 4388147801538684}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!135 &1965497308975960132
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7756380119441333356}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.298
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &4066547022115807373
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7756380119441333356}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0120adc83e0841b4486f8d495f21f923, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  isGrounded: 1
-  Ground:
-    serializedVersion: 2
-    m_Bits: 256
-  collList: 

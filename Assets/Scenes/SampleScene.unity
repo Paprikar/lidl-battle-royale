@@ -678,7 +678,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 0, y: 0, z: 1.51e-43, w: 0.109375}
+  m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 2.3509887e-38}
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
@@ -1782,10 +1782,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Soldier_Team3_Unlit
       objectReference: {fileID: 0}
-    - target: {fileID: 1167246793493698, guid: 439e26d6f71a58e4bb9adc08dc41422d, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 4388147801538684, guid: 439e26d6f71a58e4bb9adc08dc41422d, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -1830,7 +1826,8 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 404603978, guid: 439e26d6f71a58e4bb9adc08dc41422d, type: 3}
+    - target: {fileID: 8578374981319174284, guid: 439e26d6f71a58e4bb9adc08dc41422d,
+        type: 3}
       propertyPath: textWindow
       value: 
       objectReference: {fileID: 1527087514}

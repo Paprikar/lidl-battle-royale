@@ -9,7 +9,19 @@ AnimatorController:
   m_Name: ThirdPersonAnimatorController
   serializedVersion: 5
   m_AnimatorParameters:
-  - m_Name: Forward
+  - m_Name: Move_Z
+    m_Type: 1
+    m_DefaultFloat: 0
+    m_DefaultInt: 0
+    m_DefaultBool: 0
+    m_Controller: {fileID: 9100000}
+  - m_Name: Move_X
+    m_Type: 1
+    m_DefaultFloat: 0
+    m_DefaultInt: 0
+    m_DefaultBool: 0
+    m_Controller: {fileID: 9100000}
+  - m_Name: Move_Y
     m_Type: 1
     m_DefaultFloat: 0
     m_DefaultInt: 0
@@ -32,12 +44,6 @@ AnimatorController:
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 1
-    m_Controller: {fileID: 9100000}
-  - m_Name: Jump
-    m_Type: 1
-    m_DefaultFloat: 0
-    m_DefaultInt: 0
-    m_DefaultBool: 0
     m_Controller: {fileID: 9100000}
   - m_Name: JumpLeg
     m_Type: 1
@@ -187,7 +193,7 @@ BlendTree:
     m_DirectBlendParameter: 
     m_Mirror: 0
   m_BlendParameter: Turn
-  m_BlendParameterY: Forward
+  m_BlendParameterY: Move_Z
   m_MinThreshold: 0
   m_MaxThreshold: 0.95238096
   m_UseAutomaticThresholds: 0
@@ -390,7 +396,7 @@ BlendTree:
     m_DirectBlendParameter: 
     m_Mirror: 0
   m_BlendParameter: Turn
-  m_BlendParameterY: Forward
+  m_BlendParameterY: Move_Z
   m_MinThreshold: 0
   m_MaxThreshold: 0.5952381
   m_UseAutomaticThresholds: 1
@@ -531,7 +537,7 @@ BlendTree:
     m_CycleOffset: 0
     m_DirectBlendParameter: 
     m_Mirror: 0
-  m_BlendParameter: Jump
+  m_BlendParameter: Move_Y
   m_BlendParameterY: JumpLeg
   m_MinThreshold: 0
   m_MaxThreshold: 40
@@ -685,8 +691,8 @@ AnimatorStateTransition:
     m_ConditionEvent: OnGround
     m_EventTreshold: 0
   - m_ConditionMode: 3
-    m_ConditionEvent: Jump
-    m_EventTreshold: -2
+    m_ConditionEvent: Move_Y
+    m_EventTreshold: -5
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 110298501}
   m_Solo: 0
@@ -788,8 +794,8 @@ AnimatorStateTransition:
     m_ConditionEvent: OnGround
     m_EventTreshold: 0
   - m_ConditionMode: 4
-    m_ConditionEvent: Jump
-    m_EventTreshold: -2
+    m_ConditionEvent: Move_Y
+    m_EventTreshold: -5
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 110200000}
   m_Solo: 0
@@ -857,9 +863,9 @@ AnimatorState:
   m_Motion: {fileID: 20621344}
   m_Tag: 
   m_SpeedParameter: 
-  m_MirrorParameter: 
+  m_MirrorParameter: Crouch
   m_CycleOffsetParameter: 
-  m_TimeParameter: 
+  m_TimeParameter: Move_Z
 --- !u!1102 &110298501
 AnimatorState:
   serializedVersion: 5
@@ -902,7 +908,7 @@ AnimatorStateMachine:
     m_Position: {x: 588, y: 96, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 110200000}
-    m_Position: {x: 444, y: 240, z: 0}
+    m_Position: {x: 450, y: 240, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 110276412}
     m_Position: {x: 444, y: -48, z: 0}
