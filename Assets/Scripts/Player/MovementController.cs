@@ -30,12 +30,12 @@ public class MovementController : MonoBehaviour
     PlayerController m_PlayerController;
     float m_OrigGroundCheckHeight;
     const float k_Half = 0.5f;
-    float m_TurnAmount;
+    float m_TurnAmount = 0f;
     float m_CurrentXRot = 0f;
     float m_CapsuleHeight;
     Vector3 m_CapsuleCenter;
     bool m_isGrounded = true;
-    bool m_Crouching;
+    bool m_Crouching = false;
 
 
     void Awake()
@@ -59,15 +59,9 @@ public class MovementController : MonoBehaviour
 
     public void Move()
     {
-
-        // convert the world relative moveInput vector into a local-relative
-        // turn amount and forward amount required to head in the desired
-        // direction.
-        //move = transform.InverseTransformDirection(move);
         CheckGroundStatus();
-        //move = Vector3.ProjectOnPlane(move, m_GroundNormal); // Const max horizontal speed
-        m_TurnAmount = 0f;
 
+        m_TurnAmount = m_PlayerController.InputRotation.y * m_MouseSensetivity / 360f;
         ApplyExtraTurnRotation();
 
         // control and velocity handling is different when grounded and airborne:
@@ -83,7 +77,6 @@ public class MovementController : MonoBehaviour
         //ScaleCapsuleForCrouching(crouch);
         //PreventStandingInLowHeadroom();
 
-        // send input and other state parameters to the animator
         UpdateAnimator();
     }
 
@@ -223,7 +216,7 @@ public class MovementController : MonoBehaviour
             Vector3 v;
             if (m_UseRootMotion)
             {
-                v = (m_Animator.deltaPosition * m_MoveSpeedMultiplier) / Time.deltaTime;
+                v = m_Animator.deltaPosition * m_MoveSpeedMultiplier / Time.deltaTime;
             }
             else
             {
@@ -238,15 +231,16 @@ public class MovementController : MonoBehaviour
 
     void CheckGroundStatus()
     {
-        Collider[] collList = Physics.OverlapSphere
+        if
         (
-            transform.position + Vector3.up * m_GroundCheckHeight,
-            m_GroundCheckRadius,
-            m_GroundLayerMask,
-            QueryTriggerInteraction.Ignore
-        );
-
-        if (collList.Length > 0)
+            Physics.CheckSphere
+            (
+                transform.position + Vector3.up * m_GroundCheckHeight,
+                m_GroundCheckRadius,
+                m_GroundLayerMask,
+                QueryTriggerInteraction.Ignore
+            )
+        )
         {
             m_isGrounded = true;
             m_Animator.applyRootMotion = true;

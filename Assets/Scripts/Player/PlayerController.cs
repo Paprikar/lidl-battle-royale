@@ -10,9 +10,8 @@ public class PlayerController : MonoBehaviour
     [HideInInspector] public Vector2 InputRotation { get { return m_InputRotation; } }
     [HideInInspector] public bool Jump { get { return m_Jump; } }
     [HideInInspector] public bool Crouch { get { return false; } }
+    [HideInInspector] public Text textWindow;
 
-
-    [SerializeField] Text textWindow;
 
     MovementController mc;
     float hMov;
