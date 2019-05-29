@@ -173,7 +173,8 @@ public class MovementController : MonoBehaviour
     void HandleGroundedMovement()
     {
         // Jump
-        if (m_PlayerController.Jump && !m_PlayerController.Crouch && m_Animator.GetCurrentAnimatorStateInfo(0).IsName("Grounded"))
+        //if (m_PlayerController.Jump && !m_PlayerController.Crouch && m_Animator.GetCurrentAnimatorStateInfo(0).IsName("Grounded"))
+        if (m_PlayerController.Jump && !m_PlayerController.Crouch && m_isGrounded)
         {
             m_Rigidbody.velocity = new Vector3(m_Rigidbody.velocity.x, m_Rigidbody.velocity.y + m_JumpSpeed, m_Rigidbody.velocity.z);
             m_isGrounded = false;
