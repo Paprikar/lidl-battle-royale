@@ -1452,8 +1452,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 80, y: -15}
-  m_SizeDelta: {x: 160, y: 30}
+  m_AnchoredPosition: {x: 160, y: -50}
+  m_SizeDelta: {x: 320, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1527087514
 MonoBehaviour:
@@ -1482,7 +1482,7 @@ MonoBehaviour:
     m_BestFit: 1
     m_MinSize: 10
     m_MaxSize: 30
-    m_Alignment: 3
+    m_Alignment: 0
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 0
@@ -1831,6 +1831,11 @@ PrefabInstance:
       propertyPath: textWindow
       value: 
       objectReference: {fileID: 1527087514}
+    - target: {fileID: 8578374981319174284, guid: 439e26d6f71a58e4bb9adc08dc41422d,
+        type: 3}
+      propertyPath: FirstPersonView
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 439e26d6f71a58e4bb9adc08dc41422d, type: 3}
 --- !u!1 &2068850850
