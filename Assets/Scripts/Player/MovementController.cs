@@ -16,11 +16,16 @@ public class MovementController : MonoBehaviour
 
 
     [SerializeField] float m_MoveSpeedMultiplier = 5f;
-    [SerializeField] float m_AnimSpeedMultiplier = 1f;
-    [SerializeField] float m_RunCycleLegOffset = 0.2f;
-    [SerializeField] bool m_UseRootMotion = true;
     [SerializeField] float m_MouseSensetivity = 15f;
     [SerializeField] float m_JumpSpeed = 4f;
+    [SerializeField] bool m_UseMoveSnap = false;
+    [SerializeField] float m_MoveAcceleration = 10f;
+    [SerializeField] float m_MoveBrakingAcceleration = 15f;
+    [SerializeField] float m_MoveIncreasedBrakingAcceleration = 20f;
+    [SerializeField] float m_MoveExtrapolationFactor = 1.5f;
+    [SerializeField] bool m_UseRootMotion = true;
+    [SerializeField] float m_AnimSpeedMultiplier = 1f;
+    [SerializeField] float m_RunCycleLegOffset = 0.2f;
     [SerializeField] LayerMask m_GroundLayerMask = -1;
     [SerializeField] float m_GroundCheckHeight = 0.22f;
     [SerializeField] float m_GroundCheckRaiseHeight = 0.28f;
@@ -39,7 +44,7 @@ public class MovementController : MonoBehaviour
     float m_CapsuleHeight;
     Vector3 m_CapsuleCenter;
     bool m_JumpKey;
-    bool m_CrouchKey;
+    bool m_CrouchKey = false;
     bool m_isGrounded = true;
     bool m_isCrouching = false;
     Vector3 m_InputMovement;
@@ -95,22 +100,47 @@ public class MovementController : MonoBehaviour
     void GetInputs()
     {
         // Get movement inputs
-        m_JumpKey = Input.GetKeyDown("space");
+        m_InputMovement = Vector3.zero;
 
-        //float horizontalMoveInput = transform.InverseTransformDirection(m_Rigidbody.velocity).x / m_MoveSpeedMultiplier;
-        //float verticalMoveInput = transform.InverseTransformDirection(m_Rigidbody.velocity).z / m_MoveSpeedMultiplier;
-
-        m_PlayerController.textWindow.text = verticalMoveInput.ToString() + "\n";
+        Vector3 movementVelocity = transform.InverseTransformDirection(m_Rigidbody.velocity);
+        movementVelocity.y = 0f;
+        movementVelocity = movementVelocity / m_MoveSpeedMultiplier; // Normalization relative to maximum independent speed (running)
 
         if (m_isGrounded)
         {
-            horizontalMoveInput = InputManager(horizontalMoveInput, Input.GetKey(KeyCode.A), Input.GetKey(KeyCode.D), true, 5f, 10f, 20f);
-            verticalMoveInput = InputManager(verticalMoveInput, Input.GetKey(KeyCode.S), Input.GetKey(KeyCode.W), true, 5f, 10f, 20f);
+            m_InputMovement.x = InputManager(
+                movementVelocity.x,
+                Input.GetKey(KeyCode.A), Input.GetKey(KeyCode.D),
+                m_UseMoveSnap, m_MoveAcceleration, m_MoveBrakingAcceleration, m_MoveIncreasedBrakingAcceleration, m_MoveExtrapolationFactor);
 
-            if (horizontalMoveInput <= 1f && verticalMoveInput <= 1f)
+            m_InputMovement.z = InputManager(
+                movementVelocity.z,
+                Input.GetKey(KeyCode.S), Input.GetKey(KeyCode.W),
+                m_UseMoveSnap, m_MoveAcceleration, m_MoveBrakingAcceleration, m_MoveIncreasedBrakingAcceleration, m_MoveExtrapolationFactor);
+
+            Vector3 nextMovementVelocity = movementVelocity + m_InputMovement;
+
+            if (nextMovementVelocity.x < 1f + 1e-5 && nextMovementVelocity.z < 1f + 1e-5 && nextMovementVelocity.sqrMagnitude > 1f + 1e-5)
             {
-                m_InputMovement = Vector3.ClampMagnitude(new Vector3(horizontalMoveInput, 0f, verticalMoveInput), 1.0f);
+                m_InputMovement = (nextMovementVelocity.normalized - movementVelocity);
             }
+        }
+
+        m_PlayerController.textWindow.text = m_InputMovement.z.ToString() + "\n";
+
+        m_JumpKey = Input.GetKeyDown("space");
+
+
+        // Jump
+        m_JumpKey = Input.GetKeyDown("space");
+
+
+        // DEBUG
+        m_PlayerController.textWindow.text = movementVelocity.magnitude.ToString() + "\n"; // DEBUG
+
+        if (Input.GetKeyDown(KeyCode.E)) // DEBUG
+        {
+            m_Rigidbody.velocity = m_CameraMountTransform.forward * 30f;
         }
 
 
@@ -119,99 +149,119 @@ public class MovementController : MonoBehaviour
     }
 
 
-    float InputManager(float currentAxisValue, bool negativeKey, bool positiveKey, bool snap, float modifier, float reduction, float increasedReduction)
+    float InputManager(
+        float currentAxisValue,
+        bool negativeKey, bool positiveKey,
+        bool snap, float acceleration, float braking, float increasedBraking, float extrapolationFactor)
     {
+        if (Input.GetKeyDown(KeyCode.Z) && !negativeKey && positiveKey) // DEBUG
+        {
+
+        }
+
+        float deltaAxisValue = 0f;
+
         if (positiveKey == negativeKey) // Neutral input
         {
-            if (currentAxisValue < 0f)
+            if (currentAxisValue < -1e-5f)
             {
-                if (currentAxisValue < -1f)
+                if (currentAxisValue < -1f - 1e-5f)
                 {
-                    currentAxisValue = Mathf.Min(currentAxisValue + reduction * Time.fixedDeltaTime, -1f);
+                    deltaAxisValue = Mathf.Min(currentAxisValue + braking * Time.fixedDeltaTime * extrapolationFactor, -1f);
+                    deltaAxisValue = deltaAxisValue - currentAxisValue;
                 }
                 else
                 {
-                    currentAxisValue = Mathf.Min(currentAxisValue + modifier * Time.fixedDeltaTime, 0f);
+                    deltaAxisValue = Mathf.Min(currentAxisValue + acceleration * Time.fixedDeltaTime * extrapolationFactor, 0f);
+                    deltaAxisValue = deltaAxisValue - currentAxisValue;
                 }
             }
-            else if (currentAxisValue > 0f)
+            else if (currentAxisValue > 1e-5f)
             {
-                if (currentAxisValue < -1f)
+                if (currentAxisValue > 1f + 1e-5f)
                 {
-                    currentAxisValue = Mathf.Max(currentAxisValue - reduction * Time.fixedDeltaTime, 1f);
+                    deltaAxisValue = Mathf.Max(currentAxisValue - braking * Time.fixedDeltaTime * extrapolationFactor, 1f);
+                    deltaAxisValue = deltaAxisValue - currentAxisValue;
                 }
                 else
                 {
-                    currentAxisValue = Mathf.Max(currentAxisValue - modifier * Time.fixedDeltaTime, 0f);
+                    deltaAxisValue = Mathf.Max(currentAxisValue - acceleration * Time.fixedDeltaTime * extrapolationFactor, 0f);
+                    deltaAxisValue = deltaAxisValue - currentAxisValue;
                 }
             }
         }
         else if (positiveKey)
         {
-            if (currentAxisValue < 0f)
+            if (currentAxisValue < -1e-5f)
             {
-                if (currentAxisValue < -1f)
+                if (currentAxisValue < -1f - 1e-5f)
                 {
-                    currentAxisValue = Mathf.Min(currentAxisValue + increasedReduction * Time.fixedDeltaTime, -1f);
+                    deltaAxisValue = Mathf.Min(currentAxisValue + increasedBraking * Time.fixedDeltaTime * extrapolationFactor, -1f);
+                    deltaAxisValue = deltaAxisValue - currentAxisValue;
                 }
                 else
                 {
                     if (snap)
                     {
-                        currentAxisValue = 0f;
+                        deltaAxisValue = -currentAxisValue;
                     }
                     else
                     {
-                        currentAxisValue = currentAxisValue + modifier * Time.fixedDeltaTime;
+                        deltaAxisValue = acceleration * Time.fixedDeltaTime * extrapolationFactor;
                     }
                 }
             }
             else
             {
-                if (currentAxisValue > 1f)
+                if (currentAxisValue > 1f + 1e-5f)
                 {
-                    currentAxisValue = Mathf.Max(currentAxisValue - reduction * Time.fixedDeltaTime, 1f);
+                    deltaAxisValue = Mathf.Max(currentAxisValue - braking * Time.fixedDeltaTime * extrapolationFactor, 1f);
+                    deltaAxisValue = deltaAxisValue - currentAxisValue;
                 }
                 else
                 {
-                    currentAxisValue = Mathf.Min(currentAxisValue + modifier * Time.fixedDeltaTime, 1f);
+                    deltaAxisValue = Mathf.Min(currentAxisValue + acceleration * Time.fixedDeltaTime * extrapolationFactor, 1f);
+                    deltaAxisValue = deltaAxisValue - currentAxisValue;
                 }
             }
         }
         else if (negativeKey)
         {
-            if (currentAxisValue > 0f)
+            if (currentAxisValue > 1e-5f)
             {
-                if (currentAxisValue > 1f)
+                if (currentAxisValue > 1f + 1e-5f)
                 {
-                    currentAxisValue = Mathf.Max(currentAxisValue - increasedReduction * Time.fixedDeltaTime, 1f);
+                    deltaAxisValue = Mathf.Max(currentAxisValue - increasedBraking * Time.fixedDeltaTime * extrapolationFactor, 1f);
+                    deltaAxisValue = deltaAxisValue - currentAxisValue;
                 }
                 else
                 {
                     if (snap)
                     {
-                        currentAxisValue = 0f;
+                        deltaAxisValue = -currentAxisValue;
                     }
                     else
                     {
-                        currentAxisValue = currentAxisValue - modifier * Time.fixedDeltaTime;
+                        deltaAxisValue = -acceleration * Time.fixedDeltaTime * extrapolationFactor;
                     }
                 }
             }
             else
             {
-                if (currentAxisValue < -1f)
+                if (currentAxisValue < -1f - 1e-5f)
                 {
-                    currentAxisValue = Mathf.Min(currentAxisValue + reduction * Time.fixedDeltaTime, -1f);
+                    deltaAxisValue = Mathf.Min(currentAxisValue + braking * Time.fixedDeltaTime * extrapolationFactor, -1f);
+                    deltaAxisValue = deltaAxisValue - currentAxisValue;
                 }
                 else
                 {
-                    currentAxisValue = Mathf.Max(currentAxisValue - modifier * Time.fixedDeltaTime, -1f);
+                    deltaAxisValue = Mathf.Max(currentAxisValue - acceleration * Time.fixedDeltaTime * extrapolationFactor, -1f);
+                    deltaAxisValue = deltaAxisValue - currentAxisValue;
                 }
             }
         }
 
-        return currentAxisValue;
+        return deltaAxisValue;
     }
 
 
@@ -365,8 +415,8 @@ public class MovementController : MonoBehaviour
                 v = transform.TransformDirection(m_InputMovement) * m_MoveSpeedMultiplier;
             }
 
-            v.y = m_Rigidbody.velocity.y;
-            m_Rigidbody.velocity = v;
+            //v.y = m_Rigidbody.velocity.y;
+            m_Rigidbody.AddForce(v, ForceMode.VelocityChange);
         }
     }
 

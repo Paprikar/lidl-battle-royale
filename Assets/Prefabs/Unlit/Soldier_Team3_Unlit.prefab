@@ -679,11 +679,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_MoveSpeedMultiplier: 5
-  m_AnimSpeedMultiplier: 0.8
-  m_RunCycleLegOffset: 0.2
-  m_UseRootMotion: 0
   m_MouseSensetivity: 15
   m_JumpSpeed: 4
+  m_UseMoveSnap: 1
+  m_MoveAcceleration: 10
+  m_MoveBrakingAcceleration: 15
+  m_MoveIncreasedBrakingAcceleration: 20
+  m_MoveExtrapolationFactor: 1.5
+  m_UseRootMotion: 0
+  m_AnimSpeedMultiplier: 0.8
+  m_RunCycleLegOffset: 0.2
   m_GroundLayerMask:
     serializedVersion: 2
     m_Bits: 256
