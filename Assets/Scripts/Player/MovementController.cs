@@ -9,10 +9,8 @@ public class MovementController : MonoBehaviour
 {
     public bool isGrounded { get { return m_isGrounded; } }
 
-    [HideInInspector] public Vector3 InputMovement { get { return m_InputMovement; } }
-    [HideInInspector] public Vector2 InputRotation { get { return m_InputRotation; } }
-    [HideInInspector] public bool JumpKey { get { return m_JumpKey; } }
-    [HideInInspector] public bool CrouchKey { get { return m_CrouchKey; } }
+    [HideInInspector] public bool jumpKey { get { return m_JumpKey; } }
+    [HideInInspector] public bool crouchKey { get { return m_CrouchKey; } }
 
 
     [SerializeField] float m_MoveSpeedMultiplier = 5f;
@@ -47,10 +45,9 @@ public class MovementController : MonoBehaviour
     bool m_CrouchKey = false;
     bool m_isGrounded = true;
     bool m_isCrouching = false;
-    Vector3 m_InputMovement;
-    Vector2 m_InputRotation;
-    float horizontalMoveInput;
-    float verticalMoveInput;
+    Vector2 inputRotation;
+    Vector3 m_MovementVelocity;
+    Vector3 m_GroundVelocity = Vector3.zero;
 
 
     void Awake()
@@ -78,9 +75,6 @@ public class MovementController : MonoBehaviour
 
         GetInputs();
 
-        m_TurnSpeed = m_InputRotation.y * m_MouseSensetivity / 360f;
-        ApplyExtraTurnRotation();
-
         // control and velocity handling is different when grounded and airborne:
         if (m_isGrounded)
         {
@@ -100,35 +94,59 @@ public class MovementController : MonoBehaviour
     void GetInputs()
     {
         // Get movement inputs
-        m_InputMovement = Vector3.zero;
-
-        Vector3 movementVelocity = transform.InverseTransformDirection(m_Rigidbody.velocity);
-        movementVelocity.y = 0f;
-        movementVelocity = movementVelocity / m_MoveSpeedMultiplier; // Normalization relative to maximum independent speed (running)
+        Vector3 inputMovement = Vector3.zero;
 
         if (m_isGrounded)
         {
-            m_InputMovement.x = InputManager(
-                movementVelocity.x,
+            m_MovementVelocity = transform.InverseTransformDirection(m_Rigidbody.velocity - m_GroundVelocity); // Relative to ground velocity
+            m_MovementVelocity.y = 0f;
+            m_MovementVelocity = m_MovementVelocity / m_MoveSpeedMultiplier; // Normalization relative to maximum independent speed (running)
+
+            inputMovement.x = InputManager(
+                m_MovementVelocity.x,
                 Input.GetKey(KeyCode.A), Input.GetKey(KeyCode.D),
                 m_UseMoveSnap, m_MoveAcceleration, m_MoveBrakingAcceleration, m_MoveIncreasedBrakingAcceleration, m_MoveExtrapolationFactor);
 
-            m_InputMovement.z = InputManager(
-                movementVelocity.z,
+            inputMovement.z = InputManager(
+                m_MovementVelocity.z,
                 Input.GetKey(KeyCode.S), Input.GetKey(KeyCode.W),
                 m_UseMoveSnap, m_MoveAcceleration, m_MoveBrakingAcceleration, m_MoveIncreasedBrakingAcceleration, m_MoveExtrapolationFactor);
 
-            Vector3 nextMovementVelocity = movementVelocity + m_InputMovement;
+            Vector3 nextMovementVelocity = m_MovementVelocity + inputMovement;
 
             if (nextMovementVelocity.x < 1f + 1e-5 && nextMovementVelocity.z < 1f + 1e-5 && nextMovementVelocity.sqrMagnitude > 1f + 1e-5)
             {
-                m_InputMovement = (nextMovementVelocity.normalized - movementVelocity);
+                inputMovement = (nextMovementVelocity.normalized - m_MovementVelocity);
             }
+
+            m_MovementVelocity = m_MovementVelocity + inputMovement; // New velocity
         }
 
-        m_PlayerController.textWindow.text = m_InputMovement.z.ToString() + "\n";
 
-        m_JumpKey = Input.GetKeyDown("space");
+        // Get rotation inputs
+        Vector2 inputRotation = new Vector2(Input.GetAxisRaw("Mouse Y"), Input.GetAxisRaw("Mouse X"));
+        m_TurnSpeed = inputRotation.y * m_MouseSensetivity / 360f;
+
+        // Y Rotation
+        Vector3 newYRot = new Vector3
+        (
+            0f,
+            transform.localEulerAngles.y + inputRotation.y * m_MouseSensetivity * Time.fixedDeltaTime,
+            0f
+        );
+
+        transform.localEulerAngles = newYRot;
+
+        // X Rotation
+        m_CurrentXRot = Mathf.Clamp(m_CurrentXRot - inputRotation.x * m_MouseSensetivity * Time.fixedDeltaTime, -70f, 60f);
+        Vector3 newXRot = new Vector3
+        (
+            m_CurrentXRot,
+            m_CameraMountTransform.localEulerAngles.y,
+            m_CameraMountTransform.localEulerAngles.z
+        );
+
+        m_CameraMountTransform.localEulerAngles = newXRot;
 
 
         // Jump
@@ -136,16 +154,12 @@ public class MovementController : MonoBehaviour
 
 
         // DEBUG
-        m_PlayerController.textWindow.text = movementVelocity.magnitude.ToString() + "\n"; // DEBUG
+        m_PlayerController.textWindow.text = m_MovementVelocity.magnitude.ToString() + "\n"; // DEBUG
 
         if (Input.GetKeyDown(KeyCode.E)) // DEBUG
         {
             m_Rigidbody.velocity = m_CameraMountTransform.forward * 30f;
         }
-
-
-        // Get rotation inputs
-        m_InputRotation = new Vector2(Input.GetAxisRaw("Mouse Y"), Input.GetAxisRaw("Mouse X"));
     }
 
 
@@ -314,8 +328,8 @@ public class MovementController : MonoBehaviour
         else
         {
             // update the animator parameters
-            m_Animator.SetFloat("Move_X", m_InputMovement.x, 0.05f, Time.deltaTime);
-            m_Animator.SetFloat("Move_Z", m_InputMovement.z, 0.05f, Time.deltaTime);
+            m_Animator.SetFloat("Move_X", m_MovementVelocity.x, 0.05f, Time.deltaTime);
+            m_Animator.SetFloat("Move_Z", m_MovementVelocity.z, 0.05f, Time.deltaTime);
             m_Animator.SetFloat("Turn", m_TurnSpeed, 0.1f, Time.deltaTime);
             m_Animator.SetBool("Crouch", m_isCrouching);
             m_Animator.SetBool("OnGround", m_isGrounded);
@@ -330,7 +344,7 @@ public class MovementController : MonoBehaviour
             float runCycle =
                 Mathf.Repeat(
                     m_Animator.GetCurrentAnimatorStateInfo(0).normalizedTime + m_RunCycleLegOffset, 1);
-            float jumpLeg = (runCycle < k_Half ? 1 : -1) * m_InputMovement.z;
+            float jumpLeg = (runCycle < k_Half ? 1 : -1) * m_MovementVelocity.z;
             if (m_isGrounded)
             {
                 m_Animator.SetFloat("JumpLeg", jumpLeg);
@@ -338,7 +352,7 @@ public class MovementController : MonoBehaviour
 
             // the anim speed multiplier allows the overall speed of walking/running to be tweaked in the inspector,
             // which affects the movement speed because of the root motion.
-            if (m_isGrounded && m_InputMovement.magnitude > 0)
+            if (m_isGrounded && m_MovementVelocity.magnitude > 0)
             {
                 m_Animator.speed = m_AnimSpeedMultiplier;
             }
@@ -375,71 +389,78 @@ public class MovementController : MonoBehaviour
     }
 
 
-    void ApplyExtraTurnRotation()
-    {
-        // Y Rotation
-        Vector3 newYRot = new Vector3
-        (
-            0f,
-            transform.localEulerAngles.y + m_InputRotation.y * m_MouseSensetivity * Time.fixedDeltaTime,
-            0f
-        );
-
-        transform.localEulerAngles = newYRot;
-
-
-        // X Rotation
-        m_CurrentXRot = Mathf.Clamp(m_CurrentXRot - m_InputRotation.x * m_MouseSensetivity * Time.fixedDeltaTime, -70f, 60f);
-        Vector3 newXRot = new Vector3
-        (
-            m_CurrentXRot,
-            m_CameraMountTransform.localEulerAngles.y,
-            m_CameraMountTransform.localEulerAngles.z
-        );
-
-        m_CameraMountTransform.localEulerAngles = newXRot;
-    }
-
-
     void OnAnimatorMove()
     {
         if (m_isGrounded && Time.deltaTime > 0)
         {
-            Vector3 v;
+            Vector3 velocity;
             if (m_UseRootMotion)
             {
-                v = m_Animator.deltaPosition * m_MoveSpeedMultiplier / Time.deltaTime;
+                velocity = m_Animator.deltaPosition * m_MoveSpeedMultiplier / Time.deltaTime;
             }
             else
             {
-                v = transform.TransformDirection(m_InputMovement) * m_MoveSpeedMultiplier;
+                velocity = transform.TransformDirection(m_MovementVelocity) * m_MoveSpeedMultiplier;
             }
 
-            //v.y = m_Rigidbody.velocity.y;
-            m_Rigidbody.AddForce(v, ForceMode.VelocityChange);
+            velocity.y = m_Rigidbody.velocity.y;
+            m_Rigidbody.velocity = velocity + m_GroundVelocity;
         }
     }
 
 
     void CheckGroundStatus()
     {
-        if
+        Collider[] collList = Physics.OverlapSphere
         (
-            Physics.CheckSphere
-            (
-                transform.position + Vector3.up * m_GroundCheckHeight,
-                m_GroundCheckRadius,
-                m_GroundLayerMask,
-                QueryTriggerInteraction.Ignore
-            )
-        )
+            transform.position + Vector3.up * m_GroundCheckHeight,
+            m_GroundCheckRadius,
+            m_GroundLayerMask,
+            QueryTriggerInteraction.Ignore
+        );
+
+        if (collList.Length > 0)
         {
+            // Grounded status
             m_isGrounded = true;
-            m_Animator.applyRootMotion = true;
+
+
+            // AVG ground velocity
+            m_GroundVelocity = Vector3.zero;
+
+            for (int i = 0; i < collList.Length; i++)
+            {
+                VelocityTracker vt = collList[i].GetComponent<VelocityTracker>();
+                if (vt != null)
+                {
+                    m_GroundVelocity += vt.velocity;
+                }
+                else
+                {
+                    Rigidbody rb = collList[i].GetComponent<Rigidbody>();
+                    if (rb != null)
+                    {
+                        m_GroundVelocity += rb.velocity;
+                    }
+                }
+            }
+
+            m_GroundVelocity /= collList.Length;
+
+
+            // Root motion
+            if (m_UseRootMotion)
+            {
+                m_Animator.applyRootMotion = true;
+            }
         }
         else
         {
+            // Grounded status
             m_isGrounded = false;
+
+
+            //Root motion
             m_Animator.applyRootMotion = false;
         }
     }
