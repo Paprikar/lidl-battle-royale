@@ -8,6 +8,7 @@ using UnityEngine;
 public class MovementController : MonoBehaviour
 {
     public bool isGrounded { get { return m_isGrounded; } }
+    public Vector2 rotationSpeed { get { return m_RotationSpeed; } }
 
     [HideInInspector] public bool jumpKey { get { return m_JumpKey; } }
     [HideInInspector] public bool crouchKey { get { return m_CrouchKey; } }
@@ -17,11 +18,10 @@ public class MovementController : MonoBehaviour
     [SerializeField] float m_MouseSensetivity = 15f;
     [SerializeField] float m_JumpSpeed = 4f;
     [SerializeField] bool m_UseMoveSnap = false;
-    [SerializeField] float m_MoveAcceleration = 10f;
-    [SerializeField] float m_MoveBrakingAcceleration = 15f;
-    [SerializeField] float m_MoveIncreasedBrakingAcceleration = 20f;
+    [SerializeField] float m_MoveAcceleration = 5f;
+    [SerializeField] float m_MoveBrakingAcceleration = 8f;
+    [SerializeField] float m_MoveIncreasedBrakingAcceleration = 10f;
     [SerializeField] float m_MoveExtrapolationFactor = 1.5f;
-    [SerializeField] bool m_UseRootMotion = true;
     [SerializeField] float m_AnimSpeedMultiplier = 1f;
     [SerializeField] float m_RunCycleLegOffset = 0.2f;
     [SerializeField] LayerMask m_GroundLayerMask = -1;
@@ -37,17 +37,16 @@ public class MovementController : MonoBehaviour
     Transform m_CameraMountTransform;
     float m_OrigGroundCheckHeight;
     const float k_Half = 0.5f;
-    float m_TurnSpeed = 0f;
-    float m_CurrentXRot = 0f;
     float m_CapsuleHeight;
     Vector3 m_CapsuleCenter;
     bool m_JumpKey;
     bool m_CrouchKey = false;
     bool m_isGrounded = true;
     bool m_isCrouching = false;
-    Vector2 inputRotation;
     Vector3 m_MovementVelocity;
     Vector3 m_GroundVelocity = Vector3.zero;
+    Vector2 m_Rotation = Vector2.zero;
+    Vector2 m_RotationSpeed = Vector2.zero;
 
 
     void Awake()
@@ -75,7 +74,8 @@ public class MovementController : MonoBehaviour
 
         GetInputs();
 
-        // control and velocity handling is different when grounded and airborne:
+        ApplyMoveAndRotation();
+
         if (m_isGrounded)
         {
             HandleGroundedMovement();
@@ -85,8 +85,7 @@ public class MovementController : MonoBehaviour
             HandleAirborneMovement();
         }
 
-        //ScaleCapsuleForCrouching(crouch);
-        //PreventStandingInLowHeadroom();
+        //ScaleCapsuleForCrouching();
 
         UpdateAnimator();
     }
@@ -119,34 +118,31 @@ public class MovementController : MonoBehaviour
                 inputMovement = (nextMovementVelocity.normalized - m_MovementVelocity);
             }
 
-            m_MovementVelocity = m_MovementVelocity + inputMovement; // New velocity
+            m_MovementVelocity = m_MovementVelocity + inputMovement; // New velocity (Units per second)
         }
 
 
         // Get rotation inputs
         Vector2 inputRotation = new Vector2(Input.GetAxisRaw("Mouse Y"), Input.GetAxisRaw("Mouse X"));
-        m_TurnSpeed = inputRotation.y * m_MouseSensetivity / 360f;
+        Vector2 newRotation;
 
         // Y Rotation
-        Vector3 newYRot = new Vector3
-        (
-            0f,
-            transform.localEulerAngles.y + inputRotation.y * m_MouseSensetivity * Time.fixedDeltaTime,
-            0f
-        );
-
-        transform.localEulerAngles = newYRot;
+        newRotation.y = transform.localEulerAngles.y + inputRotation.y * m_MouseSensetivity * Time.fixedDeltaTime;
 
         // X Rotation
-        m_CurrentXRot = Mathf.Clamp(m_CurrentXRot - inputRotation.x * m_MouseSensetivity * Time.fixedDeltaTime, -70f, 60f);
-        Vector3 newXRot = new Vector3
-        (
-            m_CurrentXRot,
-            m_CameraMountTransform.localEulerAngles.y,
-            m_CameraMountTransform.localEulerAngles.z
-        );
+        newRotation.x = Mathf.Clamp(m_Rotation.x - inputRotation.x * m_MouseSensetivity * Time.fixedDeltaTime, -70f, 60f);
 
-        m_CameraMountTransform.localEulerAngles = newXRot;
+        // Rotation speed (RPS)
+        if (Time.fixedDeltaTime == 0)
+        {
+            m_RotationSpeed = Vector2.zero;
+        }
+        else
+        {
+            m_RotationSpeed = (newRotation - m_Rotation) / (Time.fixedDeltaTime * 360f);
+            m_RotationSpeed.x = -m_RotationSpeed.x;
+        }
+        m_Rotation = newRotation;
 
 
         // Jump
@@ -279,9 +275,43 @@ public class MovementController : MonoBehaviour
     }
 
 
-    void ScaleCapsuleForCrouching(bool crouch)
+    void ApplyMoveAndRotation()
     {
-        if (m_isGrounded && crouch)
+        // Movement
+        if (m_isGrounded)
+        {
+            Vector3 velocity = transform.TransformDirection(m_MovementVelocity) * m_MoveSpeedMultiplier;
+            velocity.y = m_Rigidbody.velocity.y;
+            m_Rigidbody.velocity = velocity + m_GroundVelocity;
+        }
+
+
+        // Rotation
+        // Y Axis
+        Vector3 newYRot = new Vector3
+        (
+            0f,
+            m_Rotation.y,
+            0f
+        );
+
+        transform.localEulerAngles = newYRot;
+
+        // X Axis
+        Vector3 newXRot = new Vector3
+        (
+            m_Rotation.x,
+            m_CameraMountTransform.localEulerAngles.y,
+            m_CameraMountTransform.localEulerAngles.z
+        );
+
+        m_CameraMountTransform.localEulerAngles = newXRot;
+    }
+
+
+    void ScaleCapsuleForCrouching()
+    {
+        if (m_isGrounded && m_JumpKey)
         {
             if (m_isCrouching) return;
             m_Capsule.height = m_Capsule.height / 2f;
@@ -304,63 +334,41 @@ public class MovementController : MonoBehaviour
     }
 
 
-    void PreventStandingInLowHeadroom()
-    {
-        // prevent standing up in crouch-only zones
-        if (!m_isCrouching)
-        {
-            Ray crouchRay = new Ray(m_Rigidbody.position + Vector3.up * m_Capsule.radius * k_Half, Vector3.up);
-            float crouchRayLength = m_CapsuleHeight - m_Capsule.radius * k_Half;
-            if (Physics.SphereCast(crouchRay, m_Capsule.radius * k_Half, crouchRayLength, Physics.AllLayers, QueryTriggerInteraction.Ignore))
-            {
-                m_isCrouching = true;
-            }
-        }
-    }
-
-
     void UpdateAnimator()
     {
-        if (m_PlayerController.FirstPersonView)
+        // update the animator parameters
+        m_Animator.SetFloat("Move_X", m_MovementVelocity.x, 0.05f, Time.fixedDeltaTime);
+        m_Animator.SetFloat("Move_Z", m_MovementVelocity.z, 0.05f, Time.fixedDeltaTime);
+        m_Animator.SetFloat("Turn", m_RotationSpeed.y, 0.1f, Time.fixedDeltaTime);
+        m_Animator.SetBool("Crouch", m_isCrouching);
+        m_Animator.SetBool("OnGround", m_isGrounded);
+        if (!m_isGrounded)
         {
+            m_Animator.SetFloat("Move_Y", m_Rigidbody.velocity.y);
+        }
 
+        // calculate which leg is behind, so as to leave that leg trailing in the jump animation
+        // (This code is reliant on the specific run cycle offset in our animations,
+        // and assumes one leg passes the other at the normalized clip times of 0.0 and 0.5)
+        float runCycle =
+            Mathf.Repeat(
+                m_Animator.GetCurrentAnimatorStateInfo(0).normalizedTime + m_RunCycleLegOffset, 1);
+        float jumpLeg = (runCycle < k_Half ? 1 : -1) * m_MovementVelocity.z;
+        if (m_isGrounded)
+        {
+            m_Animator.SetFloat("JumpLeg", jumpLeg);
+        }
+
+        // the anim speed multiplier allows the overall speed of walking/running to be tweaked in the inspector,
+        // which affects the movement speed because of the root motion.
+        if (m_isGrounded && m_MovementVelocity.magnitude > 0)
+        {
+            m_Animator.speed = m_AnimSpeedMultiplier;
         }
         else
         {
-            // update the animator parameters
-            m_Animator.SetFloat("Move_X", m_MovementVelocity.x, 0.05f, Time.deltaTime);
-            m_Animator.SetFloat("Move_Z", m_MovementVelocity.z, 0.05f, Time.deltaTime);
-            m_Animator.SetFloat("Turn", m_TurnSpeed, 0.1f, Time.deltaTime);
-            m_Animator.SetBool("Crouch", m_isCrouching);
-            m_Animator.SetBool("OnGround", m_isGrounded);
-            if (!m_isGrounded)
-            {
-                m_Animator.SetFloat("Move_Y", m_Rigidbody.velocity.y);
-            }
-
-            // calculate which leg is behind, so as to leave that leg trailing in the jump animation
-            // (This code is reliant on the specific run cycle offset in our animations,
-            // and assumes one leg passes the other at the normalized clip times of 0.0 and 0.5)
-            float runCycle =
-                Mathf.Repeat(
-                    m_Animator.GetCurrentAnimatorStateInfo(0).normalizedTime + m_RunCycleLegOffset, 1);
-            float jumpLeg = (runCycle < k_Half ? 1 : -1) * m_MovementVelocity.z;
-            if (m_isGrounded)
-            {
-                m_Animator.SetFloat("JumpLeg", jumpLeg);
-            }
-
-            // the anim speed multiplier allows the overall speed of walking/running to be tweaked in the inspector,
-            // which affects the movement speed because of the root motion.
-            if (m_isGrounded && m_MovementVelocity.magnitude > 0)
-            {
-                m_Animator.speed = m_AnimSpeedMultiplier;
-            }
-            else
-            {
-                // don't use that while airborne
-                m_Animator.speed = 1;
-            }
+            // don't use that while airborne
+            m_Animator.speed = 1;
         }
     }
 
@@ -383,28 +391,7 @@ public class MovementController : MonoBehaviour
         {
             m_Rigidbody.velocity = new Vector3(m_Rigidbody.velocity.x, m_Rigidbody.velocity.y + m_JumpSpeed, m_Rigidbody.velocity.z);
             m_isGrounded = false;
-            m_Animator.applyRootMotion = false;
             m_GroundCheckHeight = m_GroundCheckRaiseHeight;
-        }
-    }
-
-
-    void OnAnimatorMove()
-    {
-        if (m_isGrounded && Time.deltaTime > 0)
-        {
-            Vector3 velocity;
-            if (m_UseRootMotion)
-            {
-                velocity = m_Animator.deltaPosition * m_MoveSpeedMultiplier / Time.deltaTime;
-            }
-            else
-            {
-                velocity = transform.TransformDirection(m_MovementVelocity) * m_MoveSpeedMultiplier;
-            }
-
-            velocity.y = m_Rigidbody.velocity.y;
-            m_Rigidbody.velocity = velocity + m_GroundVelocity;
         }
     }
 
@@ -426,7 +413,7 @@ public class MovementController : MonoBehaviour
 
 
             // AVG ground velocity
-            m_GroundVelocity = Vector3.zero;
+            m_GroundVelocity = Vector3.zero; // VelocityTracker -> Rigidbody -> 0
 
             for (int i = 0; i < collList.Length; i++)
             {
@@ -446,22 +433,11 @@ public class MovementController : MonoBehaviour
             }
 
             m_GroundVelocity /= collList.Length;
-
-
-            // Root motion
-            if (m_UseRootMotion)
-            {
-                m_Animator.applyRootMotion = true;
-            }
         }
         else
         {
             // Grounded status
             m_isGrounded = false;
-
-
-            //Root motion
-            m_Animator.applyRootMotion = false;
         }
     }
 }
