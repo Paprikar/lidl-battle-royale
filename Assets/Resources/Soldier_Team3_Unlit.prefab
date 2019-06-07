@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 415179829}
   m_Layer: 0
   m_Name: Camera
-  m_TagString: Untagged
+  m_TagString: MainCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -57,7 +57,7 @@ Camera:
     height: 1
   near clip plane: 0.1
   far clip plane: 1000
-  field of view: 44.156784
+  field of view: 57.074303
   orthographic: 0
   orthographic size: 5
   m_Depth: 0
@@ -573,8 +573,11 @@ GameObject:
   - component: {fileID: 95221350594522706}
   - component: {fileID: 404603977}
   - component: {fileID: 404603976}
+  - component: {fileID: 2447681603763776414}
   - component: {fileID: 8578374981319174284}
   - component: {fileID: 5095163350194442939}
+  - component: {fileID: 4069666047618840854}
+  - component: {fileID: 5231282639332502376}
   m_Layer: 9
   m_Name: Soldier_Team3_Unlit
   m_TagString: Untagged
@@ -648,6 +651,18 @@ CapsuleCollider:
   m_Height: 1.8
   m_Direction: 1
   m_Center: {x: 0, y: 0.9, z: 0}
+--- !u!114 &2447681603763776414
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1167246793493698}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97fd2f4e0c1b2fc43b30a5abef22e8e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &8578374981319174284
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -661,11 +676,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   FirstPersonView: 1
-  textWindow: {fileID: 0}
+  TextWindow: {fileID: 0}
   m_FirstPersonAnimatorController: {fileID: 9100000, guid: 469d14730d252424c9b5aa8e4941fa1f,
     type: 2}
   m_ThirdPersonAnimatorController: {fileID: 9100000, guid: e2cf68ff4b1ffda45a77f7307dd789b9,
     type: 2}
+  m_MenuLayer: {fileID: 247392769103392035, guid: 66c1ab17a18f26548bc9445bcb597a21,
+    type: 3}
 --- !u!114 &5095163350194442939
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -695,6 +712,44 @@ MonoBehaviour:
   m_GroundCheckRaiseHeight: 0.28
   m_GroundCheckRadius: 0.29
   m_GravityMultiplier: 1
+--- !u!114 &4069666047618840854
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1167246793493698}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 0
+  ObservedComponents:
+  - {fileID: 5231282639332502376}
+  - {fileID: 5095163350194442939}
+  viewIdField: 0
+  InstantiationId: 1
+  isRuntimeInstantiated: 0
+--- !u!114 &5231282639332502376
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1167246793493698}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 627855c7f81362d41938ffe0b1475957, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SynchronizePosition: 1
+  m_SynchronizeRotation: 1
+  m_SynchronizeScale: 0
 --- !u!1 &1167849799389016
 GameObject:
   m_ObjectHideFlags: 0

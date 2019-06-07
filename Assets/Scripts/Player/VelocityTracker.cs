@@ -3,31 +3,34 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public class VelocityTracker : MonoBehaviour
+namespace LidlBattleRoyale
 {
-    public Vector3 velocity { get { return GetVelocity(); } }
-
-
-    Vector3 m_PreviousPosition;
-    Vector3 m_CurrentPosition;
-
-
-    void Awake()
+    public class VelocityTracker : MonoBehaviour
     {
-        m_PreviousPosition = transform.position;
-        m_CurrentPosition = transform.position;
-    }
+        public Vector3 velocity { get { return GetVelocity(); } }
 
 
-    void FixedUpdate()
-    {
-        m_PreviousPosition = m_CurrentPosition;
-        m_CurrentPosition = transform.position;
-    }
+        Vector3 m_PreviousPosition;
+        Vector3 m_CurrentPosition;
 
 
-    Vector3 GetVelocity()
-    {
-        return (m_CurrentPosition - m_PreviousPosition) / Time.fixedDeltaTime;
+        void Awake()
+        {
+            m_PreviousPosition = transform.position;
+            m_CurrentPosition = transform.position;
+        }
+
+
+        void FixedUpdate()
+        {
+            m_PreviousPosition = m_CurrentPosition;
+            m_CurrentPosition = transform.position;
+        }
+
+
+        Vector3 GetVelocity()
+        {
+            return (m_CurrentPosition - m_PreviousPosition) / Time.fixedDeltaTime;
+        }
     }
 }

@@ -7,3 +7,4 @@ Unity 2019.1.2f1
   * Huge Mocap Library
   * Raw Mocap Data
   * ThirdPersonCharacter
+  * Photon Unity Networking v2.12
