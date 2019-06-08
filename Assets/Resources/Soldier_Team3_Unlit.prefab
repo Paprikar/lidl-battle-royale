@@ -63,7 +63,7 @@ Camera:
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 1335
+    m_Bits: 4294967295
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -577,7 +577,6 @@ GameObject:
   - component: {fileID: 8578374981319174284}
   - component: {fileID: 5095163350194442939}
   - component: {fileID: 4069666047618840854}
-  - component: {fileID: 5231282639332502376}
   m_Layer: 9
   m_Name: Soldier_Team3_Unlit
   m_TagString: Untagged
@@ -677,12 +676,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   FirstPersonView: 1
   TextWindow: {fileID: 0}
+  m_CameraMount: {fileID: 3885389346894798356}
   m_FirstPersonAnimatorController: {fileID: 9100000, guid: 469d14730d252424c9b5aa8e4941fa1f,
     type: 2}
   m_ThirdPersonAnimatorController: {fileID: 9100000, guid: e2cf68ff4b1ffda45a77f7307dd789b9,
     type: 2}
-  m_MenuLayer: {fileID: 247392769103392035, guid: 66c1ab17a18f26548bc9445bcb597a21,
-    type: 3}
 --- !u!114 &5095163350194442939
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -695,6 +693,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf83d81be4634154e916138f3c03a4d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_CameraMountTransform: {fileID: 7409401344336331151}
   m_MoveSpeedMultiplier: 5
   m_MouseSensetivity: 15
   m_JumpSpeed: 4
@@ -730,26 +729,10 @@ MonoBehaviour:
   Synchronization: 3
   OwnershipTransfer: 0
   ObservedComponents:
-  - {fileID: 5231282639332502376}
   - {fileID: 5095163350194442939}
   viewIdField: 0
   InstantiationId: 1
   isRuntimeInstantiated: 0
---- !u!114 &5231282639332502376
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1167246793493698}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 627855c7f81362d41938ffe0b1475957, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_SynchronizePosition: 1
-  m_SynchronizeRotation: 1
-  m_SynchronizeScale: 0
 --- !u!1 &1167849799389016
 GameObject:
   m_ObjectHideFlags: 0

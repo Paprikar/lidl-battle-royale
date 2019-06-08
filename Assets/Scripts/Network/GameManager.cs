@@ -12,7 +12,7 @@ namespace LidlBattleRoyale
 {
     public class GameManager : MonoBehaviourPunCallbacks
     {
-        public static GameManager Instance;
+        public static GameManager GameManagerInstance;
 
 
         [Tooltip("The prefab to use for representing the player")]
@@ -39,7 +39,7 @@ namespace LidlBattleRoyale
 
         void Awake()
         {
-            Instance = this;
+            GameManagerInstance = this;
         }
 
 

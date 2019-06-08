@@ -18,6 +18,7 @@ namespace LidlBattleRoyale
         [HideInInspector] public bool crouchKey { get { return m_CrouchKey; } }
 
 
+        [SerializeField] Transform m_CameraMountTransform;
         [SerializeField] float m_MoveSpeedMultiplier = 5f;
         [SerializeField] float m_MouseSensetivity = 15f;
         [SerializeField] float m_JumpSpeed = 4f;
@@ -38,7 +39,6 @@ namespace LidlBattleRoyale
         Rigidbody m_Rigidbody;
         CapsuleCollider m_Capsule;
         PlayerController m_PlayerController;
-        Transform m_CameraMountTransform;
         float m_OrigGroundCheckHeight;
         const float k_Half = 0.5f;
         float m_CapsuleHeight;
@@ -58,6 +58,7 @@ namespace LidlBattleRoyale
             if (stream.IsWriting)
             {
                 // We own this player: send the others our data
+                stream.SendNext(transform.position);
                 stream.SendNext(m_MovementVelocity);
                 stream.SendNext(m_Rotation);
                 stream.SendNext(m_JumpKey);
@@ -65,6 +66,7 @@ namespace LidlBattleRoyale
             else
             {
                 // Network player, receive data
+                transform.position = (Vector3)stream.ReceiveNext();
                 m_MovementVelocity = (Vector3)stream.ReceiveNext();
                 m_Rotation = (Vector2)stream.ReceiveNext();
                 m_JumpKey = (bool)stream.ReceiveNext();
@@ -78,7 +80,6 @@ namespace LidlBattleRoyale
             m_Rigidbody = GetComponent<Rigidbody>();
             m_Capsule = GetComponent<CapsuleCollider>();
             m_PlayerController = GetComponent<PlayerController>();
-            m_CameraMountTransform = transform.Find("FirstPersonView/CameraMount");
 
             m_OrigGroundCheckHeight = m_GroundCheckHeight;
             m_Rigidbody.freezeRotation = true;
@@ -94,10 +95,6 @@ namespace LidlBattleRoyale
             if (photonView.IsMine)
             {
                 GetInputs();
-            }
-            else
-            {
-                Debug.Log("isnotmine");
             }
 
             ApplyMoveAndRotation();
@@ -178,7 +175,7 @@ namespace LidlBattleRoyale
 
 
             // DEBUG
-            m_PlayerController.TextWindow.text = m_MovementVelocity.magnitude.ToString() + "\n"; // DEBUG
+            m_PlayerController.TextWindow.text = m_MovementVelocity.magnitude.ToString() + "\n" + PhotonNetwork.CurrentRoom.PlayerCount.ToString() + "\n"; // DEBUG
 
             if (Input.GetKeyDown(KeyCode.E)) // DEBUG
             {

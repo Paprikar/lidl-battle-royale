@@ -12,12 +12,13 @@ namespace LidlBattleRoyale
 {
     public class PlayerController : MonoBehaviourPunCallbacks
     {
-        public bool FirstPersonView = true;
+        public bool FirstPersonView = false;
 
         [HideInInspector]
         public Text TextWindow;
 
 
+        [SerializeField] GameObject m_CameraMount;
         [SerializeField] RuntimeAnimatorController m_FirstPersonAnimatorController;
         [SerializeField] RuntimeAnimatorController m_ThirdPersonAnimatorController;
 
@@ -33,14 +34,22 @@ namespace LidlBattleRoyale
 
             TextWindow = GameObject.Find("Canvas/Debug").GetComponent<Text>();
             m_MenuLayer = GameObject.Find("Canvas/Menu");
+
+            m_CameraMount.SetActive(photonView.IsMine);
         }
 
 
         void Start()
         {
-            ChangeView(FirstPersonView);
-
-            m_MenuLayer.SetActive(false);
+            if (photonView.IsMine)
+            {
+                ChangeView(true);
+                m_MenuLayer.SetActive(false);
+            }
+            else
+            {
+                ChangeView(false);
+            }
         }
 
 
