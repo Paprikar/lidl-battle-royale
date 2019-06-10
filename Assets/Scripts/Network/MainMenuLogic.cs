@@ -78,10 +78,7 @@ namespace LidlBattleRoyale
         {
             m_isConnecting = false;
 
-            if (PhotonNetwork.CurrentRoom.PlayerCount == 1)
-            {
-                PhotonNetwork.LoadLevel("SampleScene");
-            }
+            PhotonNetwork.LoadLevel("SampleScene");
         }
     }
 }

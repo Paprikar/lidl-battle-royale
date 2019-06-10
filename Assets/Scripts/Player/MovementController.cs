@@ -43,7 +43,12 @@ namespace LidlBattleRoyale
         const float k_Half = 0.5f;
         float m_CapsuleHeight;
         Vector3 m_CapsuleCenter;
-        bool m_JumpKey;
+        Vector2 m_RotationInput = Vector2.zero;
+        bool m_WKey = false;
+        bool m_AKey = false;
+        bool m_SKey = false;
+        bool m_DKey = false;
+        bool m_JumpKey = false;
         bool m_CrouchKey = false;
         bool m_isGrounded = true;
         bool m_isCrouching = false;
@@ -59,16 +64,32 @@ namespace LidlBattleRoyale
             {
                 // We own this player: send the others our data
                 stream.SendNext(transform.position);
+
                 stream.SendNext(m_MovementVelocity);
+                stream.SendNext(m_WKey);
+                stream.SendNext(m_AKey);
+                stream.SendNext(m_SKey);
+                stream.SendNext(m_DKey);
+
                 stream.SendNext(m_Rotation);
+                stream.SendNext(m_RotationInput);
+
                 stream.SendNext(m_JumpKey);
             }
             else
             {
                 // Network player, receive data
                 transform.position = (Vector3)stream.ReceiveNext();
+
                 m_MovementVelocity = (Vector3)stream.ReceiveNext();
+                m_WKey = (bool)stream.ReceiveNext();
+                m_AKey = (bool)stream.ReceiveNext();
+                m_SKey = (bool)stream.ReceiveNext();
+                m_DKey = (bool)stream.ReceiveNext();
+
                 m_Rotation = (Vector2)stream.ReceiveNext();
+                m_RotationInput = (Vector2)stream.ReceiveNext();
+
                 m_JumpKey = (bool)stream.ReceiveNext();
             }
         }
@@ -97,7 +118,9 @@ namespace LidlBattleRoyale
                 GetInputs();
             }
 
-            ApplyMoveAndRotation();
+            ProcessingInputs();
+
+            ApplyMovementAndRotation();
 
             if (m_isGrounded)
             {
@@ -117,6 +140,36 @@ namespace LidlBattleRoyale
         void GetInputs()
         {
             // Get movement inputs
+            m_AKey = Input.GetKey(KeyCode.A);
+            m_DKey = Input.GetKey(KeyCode.D);
+            m_SKey = Input.GetKey(KeyCode.S);
+            m_WKey = Input.GetKey(KeyCode.W);
+
+
+            // Get rotation inputs
+            m_RotationInput = new Vector2(Input.GetAxisRaw("Mouse Y"), Input.GetAxisRaw("Mouse X"));
+
+
+            // Jump
+            m_JumpKey = Input.GetKeyDown("space");
+
+
+            // DEBUG
+            m_PlayerController.TextWindow.text =
+                "isGrounded = " + m_isGrounded.ToString() + "\n" +
+                "Speed = " + ((float)((int)(m_MovementVelocity.magnitude * 100)) / 100).ToString() + "\n" +
+                "Online = " + PhotonNetwork.CurrentRoom.PlayerCount.ToString() + "\n";
+
+            if (Input.GetKeyDown(KeyCode.E))
+            {
+                m_Rigidbody.velocity = m_CameraMountTransform.forward * 30f;
+            }
+        }
+
+
+        void ProcessingInputs()
+        {
+            // Movement
             Vector3 inputMovement = Vector3.zero;
 
             if (m_isGrounded)
@@ -127,12 +180,12 @@ namespace LidlBattleRoyale
 
                 inputMovement.x = InputManager(
                     m_MovementVelocity.x,
-                    Input.GetKey(KeyCode.A), Input.GetKey(KeyCode.D),
+                    m_AKey, m_DKey,
                     m_UseMoveSnap, m_MoveAcceleration, m_MoveBrakingAcceleration, m_MoveIncreasedBrakingAcceleration, m_MoveExtrapolationFactor);
 
                 inputMovement.z = InputManager(
                     m_MovementVelocity.z,
-                    Input.GetKey(KeyCode.S), Input.GetKey(KeyCode.W),
+                    m_SKey, m_WKey,
                     m_UseMoveSnap, m_MoveAcceleration, m_MoveBrakingAcceleration, m_MoveIncreasedBrakingAcceleration, m_MoveExtrapolationFactor);
 
                 Vector3 nextMovementVelocity = m_MovementVelocity + inputMovement;
@@ -146,15 +199,14 @@ namespace LidlBattleRoyale
             }
 
 
-            // Get rotation inputs
-            Vector2 inputRotation = new Vector2(Input.GetAxisRaw("Mouse Y"), Input.GetAxisRaw("Mouse X"));
-            Vector2 newRotation;
+            // Rotation
+            Vector2 nextRotation;
 
             // Y Rotation
-            newRotation.y = transform.localEulerAngles.y + inputRotation.y * m_MouseSensetivity * Time.fixedDeltaTime;
+            nextRotation.y = m_Rotation.y + m_RotationInput.y * m_MouseSensetivity * Time.fixedDeltaTime;
 
             // X Rotation
-            newRotation.x = Mathf.Clamp(m_Rotation.x - inputRotation.x * m_MouseSensetivity * Time.fixedDeltaTime, -70f, 60f);
+            nextRotation.x = Mathf.Clamp(m_Rotation.x - m_RotationInput.x * m_MouseSensetivity * Time.fixedDeltaTime, -70f, 60f);
 
             // Rotation speed (RPS)
             if (Time.fixedDeltaTime == 0)
@@ -163,24 +215,11 @@ namespace LidlBattleRoyale
             }
             else
             {
-                m_RotationSpeed = (newRotation - m_Rotation) / (Time.fixedDeltaTime * 360f);
+                m_RotationSpeed = (nextRotation - m_Rotation) / (Time.fixedDeltaTime * 360f);
                 m_RotationSpeed.x = -m_RotationSpeed.x;
             }
 
-            m_Rotation = newRotation;
-
-
-            // Jump
-            m_JumpKey = Input.GetKeyDown("space");
-
-
-            // DEBUG
-            m_PlayerController.TextWindow.text = m_MovementVelocity.magnitude.ToString() + "\n" + PhotonNetwork.CurrentRoom.PlayerCount.ToString() + "\n"; // DEBUG
-
-            if (Input.GetKeyDown(KeyCode.E)) // DEBUG
-            {
-                m_Rigidbody.velocity = m_CameraMountTransform.forward * 30f;
-            }
+            m_Rotation = nextRotation;
         }
 
 
@@ -300,7 +339,7 @@ namespace LidlBattleRoyale
         }
 
 
-        void ApplyMoveAndRotation()
+        void ApplyMovementAndRotation()
         {
             // Movement
             if (m_isGrounded)

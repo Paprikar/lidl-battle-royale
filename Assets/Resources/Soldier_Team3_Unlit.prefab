@@ -674,7 +674,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73ae5399dfb65b441a8eae68831c73f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  FirstPersonView: 1
+  FirstPersonView: 0
   TextWindow: {fileID: 0}
   m_CameraMount: {fileID: 3885389346894798356}
   m_FirstPersonAnimatorController: {fileID: 9100000, guid: 469d14730d252424c9b5aa8e4941fa1f,

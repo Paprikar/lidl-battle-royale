@@ -41,14 +41,11 @@ namespace LidlBattleRoyale
 
         void Start()
         {
+            ChangeView(photonView.IsMine);
+
             if (photonView.IsMine)
             {
-                ChangeView(true);
                 m_MenuLayer.SetActive(false);
-            }
-            else
-            {
-                ChangeView(false);
             }
         }
 
@@ -57,8 +54,6 @@ namespace LidlBattleRoyale
         {
             if (photonView.IsMine)
             {
-                TextWindow.text += (m_MovementController.isGrounded ? "true" : "false");
-
                 if (Input.GetKeyDown(KeyCode.Escape))
                 {
                     m_MenuLayer.SetActive(!m_MenuLayer.activeSelf);

@@ -54,19 +54,13 @@ namespace LidlBattleRoyale
 
         public override void OnPlayerEnteredRoom(Player other)
         {
-            if (PhotonNetwork.IsMasterClient)
-            {
-                LoadArena();
-            }
+
         }
 
 
         public override void OnPlayerLeftRoom(Player other)
         {
-            if (PhotonNetwork.IsMasterClient)
-            {
-                LoadArena();
-            }
+
         }
     }
 }
