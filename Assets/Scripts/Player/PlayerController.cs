@@ -1,55 +1,82 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+
 using UnityEngine;
 using UnityEngine.UI;
 
+using Photon.Pun;
+using Photon.Realtime;
 
-public class PlayerController : MonoBehaviour
+
+namespace LidlBattleRoyale
 {
-    public bool FirstPersonView = true;
-    public Text textWindow;
-
-
-    [SerializeField] RuntimeAnimatorController m_FirstPersonAnimatorController;
-    [SerializeField] RuntimeAnimatorController m_ThirdPersonAnimatorController;
-
-    MovementController m_MovementController;
-    Animator m_AnimatorController;
-
-
-    void Awake()
+    public class PlayerController : MonoBehaviourPunCallbacks
     {
-        m_MovementController = GetComponent<MovementController>();
-        m_AnimatorController = GetComponent<Animator>();
-    }
+        public bool FirstPersonView = false;
+
+        [HideInInspector]
+        public Text TextWindow;
 
 
-    void Start()
-    {
-        ChangeView(FirstPersonView);
-    }
+        [SerializeField] GameObject m_CameraMount;
+        [SerializeField] RuntimeAnimatorController m_FirstPersonAnimatorController;
+        [SerializeField] RuntimeAnimatorController m_ThirdPersonAnimatorController;
+
+        MovementController m_MovementController;
+        Animator m_AnimatorController;
+        GameObject m_MenuLayer;
 
 
-    void Update()
-    {
-        textWindow.text += (m_MovementController.isGrounded ? "true" : "false");
-    }
+        void Awake()
+        {
+            m_MovementController = GetComponent<MovementController>();
+            m_AnimatorController = GetComponent<Animator>();
+
+            TextWindow = GameObject.Find("Canvas/Debug").GetComponent<Text>();
+            m_MenuLayer = GameObject.Find("Canvas/Menu");
+
+            m_CameraMount.SetActive(photonView.IsMine);
+        }
 
 
-    void FixedUpdate()
-    {
-        m_MovementController.Move();
-    }
+        void Start()
+        {
+            ChangeView(photonView.IsMine);
+
+            if (photonView.IsMine)
+            {
+                m_MenuLayer.SetActive(false);
+            }
+        }
 
 
-    public void ChangeView(bool firstPersonView)
-    {
-        FirstPersonView = firstPersonView;
+        void Update()
+        {
+            if (photonView.IsMine)
+            {
+                if (Input.GetKeyDown(KeyCode.Escape))
+                {
+                    m_MenuLayer.SetActive(!m_MenuLayer.activeSelf);
+                }
+            }
+        }
 
-        transform.Find("FirstPersonView").gameObject.SetActive(FirstPersonView);
-        transform.Find("ThirdPersonView").gameObject.SetActive(!FirstPersonView);
 
-        m_AnimatorController.runtimeAnimatorController = FirstPersonView ?
-            m_FirstPersonAnimatorController : m_ThirdPersonAnimatorController;
+        void FixedUpdate()
+        {
+            m_MovementController.Move();
+        }
+
+
+        public void ChangeView(bool firstPersonView)
+        {
+            FirstPersonView = firstPersonView;
+
+            transform.Find("FirstPersonView").gameObject.SetActive(FirstPersonView);
+            transform.Find("ThirdPersonView").gameObject.SetActive(!FirstPersonView);
+
+            m_AnimatorController.runtimeAnimatorController = FirstPersonView ?
+                m_FirstPersonAnimatorController : m_ThirdPersonAnimatorController;
+        }
     }
 }
